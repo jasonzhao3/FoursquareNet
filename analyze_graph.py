@@ -3,10 +3,11 @@ import os
 import numpy as np
 
 data_path = '../DataSet/'
-graph_in = snap.TFIn(os.path.join(data_path, 'sf_trsn_graph'))
+graph_in = snap.TFIn(os.path.join(data_path, 'sf_trsn_graph_small'))
 
 trsn_g = snap.TNEANet.Load(graph_in)
 g_size = trsn_g.GetNodes()
+print "The size of the graph is %d" %(g_size)
 
 max_scc = snap.GetMxScc(trsn_g)
 num_max_scc_n = max_scc.GetNodes()
