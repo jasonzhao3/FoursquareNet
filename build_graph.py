@@ -3,7 +3,7 @@ import os, pickle
 
 data_path = '../DataSet/'
 trsn_file = open(os.path.join(data_path, 'sf_trsn'))
-#time_file = open(os.path.join(data_path, 'sf_time'))
+time_file = open(os.path.join(data_path, 'sf_time'))
 
 
 trsn_list = pickle.load(trsn_file)
@@ -16,14 +16,16 @@ node_hash = {}
 
 #key: venue_id   val: node_id
 nid = 0
-for venue_id in node_set:
-    node_hash[venue_id] = nid
+for vid in node_set:
+    node_hash[vid] = nid
     nid += 1
 
 trsn_g = snap.TNEANet.New()
 #node_id: 0 to n-1
-for nid in xrange(len(node_set)):
+for vid, nid in node_hash.iteritems():
     trsn_g.AddNode(nid)
+    trsn_g.AddStrAttrDatN('vid', vid)
+
 #freq: frequncy(cnt) of edge
 print trsn_g.GetNodes()
 for trsn in trsn_list:
@@ -31,7 +33,6 @@ for trsn in trsn_list:
     dest_nid = node_hash[trsn[1]]
     print src_nid, dest_nid
     if not trsn_g.IsEdge(src_nid, dest_nid):
-        print "begin add node"
         edge_id = trsn_g.AddEdge(src_nid, dest_nid)
         trsn_g.AddIntAttrDatE(edge_id, 1, 'freq')  
         print "add a new edge, hoho~"
