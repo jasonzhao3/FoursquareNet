@@ -23,6 +23,7 @@ trsn_g = snap.TNEANet.Load(graph_in)
    - SCC, bowtie structure
 '''
 g_size = trsn_g.GetNodes()
+edge_size = trsn_g.GetEdges()
 max_scc = snap.GetMxScc(trsn_g)
 num_max_scc_n = max_scc.GetNodes()
 rand_node = max_scc.GetRndNId()
@@ -35,7 +36,7 @@ num_max_wcc_n = max_wcc.GetNodes()
 num_out = out_combined.GetNodes() - num_max_scc_n
 num_in = in_combined.GetNodes() - num_max_scc_n
 numDiscon = g_size - num_max_wcc_n
-print "The size of the graph is %d" %(g_size)
+print "The size of the graph is %d, %d" %(g_size, edge_size)
 print "The largest SCC ratio is: %0.4f " %( float(num_max_scc_n) / g_size )
 print "The In-component of the largest SCC ratio is: %0.4f "  %(float(num_in) / g_size)
 print "The Out-component of the largest SCC ratio is: %0.4f"  % (float(num_out) / g_size)
@@ -67,18 +68,25 @@ for edge in trsn_g.Edges():
     src_nid = edge.GetSrcNId()
     dst_nid = edge.GetDstNId()
     edge_id = trsn_g.GetEId(src_nid, dst_nid)
-    trsn_freqs.append(trsn_g.GetIntAttrDatE(edge_id, 'freq'))
+    freq = trsn_g.GetIntAttrDatE(edge_id, 'freq')
+    if freq > 20:
+        trsn_freqs.append(freq)
     trsn_durations.append(trsn_g.GetFltAttrDatE(edge_id, 'duration'))
-print max(trsn_freqs)
-trsn_freqs = np.log(np.array(trsn_freqs) + 10)
+print max(trsn_freqs), len(trsn_freqs)
+trsn_freqs = np.log(np.array(trsn_freqs)+10)
+trsn_durations = np.array(trsn_durations) / 60.0
 
 plt.figure()
 plt.hist(trsn_freqs, bins=50, label='transition frequency')
-plt.title('transition frequency distribution')
+plt.title('transition frequency distribution > 20')
+plt.ylabel('number)')
+plt.xlabel('transition frequency -- log(#+10)')
 plt.savefig(os.path.join(result_path, 'trsn_freq_dist.png'))
 
 plt.figure()
-plt.hist(trsn_durations, bins=80, label='transition duration')
+plt.hist(trsn_durations, bins=30, label='transition duration')
+plt.xlabel('duration/10min')
+plt.ylabel('number')
 plt.title('transition duration distribution')
 plt.savefig(os.path.join(result_path, 'trsn_duration_dist.png'))
     
