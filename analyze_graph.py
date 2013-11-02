@@ -90,4 +90,3 @@ plt.ylabel('number')
 plt.title('transition duration distribution')
 plt.savefig(os.path.join(result_path, 'trsn_duration_dist.png'))
     
-
