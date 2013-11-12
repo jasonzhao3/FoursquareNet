@@ -6,10 +6,10 @@ import json
 pathToData = '../DataSet'
 srcPath = os.path.join(pathToData, 'venues.txt')
 outPrefix = 'venues-'
-outSuffix = '.json'
+outSuffix = '-new.json'
 
 fullList = ['id', 'venuename', 'lat', 'lng', 'address', 'city', 'metroarea', 'uniquevisitors', 'totalcheckins', 'category',  'parentcategory']
-wantedList = ['id', 'venuename', 'lat', 'lng', 'city', 'uniquevisitors', 'totalcheckins', 'category']
+wantedList = ['id', 'venuename', 'lat', 'lng', 'city', 'uniquevisitors', 'totalcheckins', 'category',  'parentcategory']
 
 def parse_args():
   parser = argparse.ArgumentParser()
@@ -22,14 +22,14 @@ def parse_args():
 def split_file(args):
   fin = open(srcPath, 'r')
   head = fin.readline()
-  attrs = head.split('\t')
+  attrs = head.strip().split('\t')
 
   if args.c:
     cities = set()
     fout_list = dict()
     for line in fin:
       v_dict = dict()
-      venue = line.split('\t')
+      venue = line.strip().split('\t')
       for i in range(0, len(attrs)):
         if attrs[i] in wantedList:
           v_dict[attrs[i]] = venue[i]
