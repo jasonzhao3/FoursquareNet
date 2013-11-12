@@ -1,3 +1,9 @@
+'''
+    This script is used to build our first transition graph.
+    We use TNEANet with node attributes and edge attribues.
+    For details of the graph structure, please refer the google doc - milestone.
+'''
+
 import snap
 import os, pickle
 

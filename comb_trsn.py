@@ -1,3 +1,12 @@
+'''
+    This script is used to combine several small splited transition files into one complete transition file.
+    
+    Because we first split 1.5GB original transition file into several small files. 
+    Then we extract region-related(e.g. SF-related) transition info from each of the file.
+    Finally we use this script to combine those results together into a complete file.
+'''
+
+
 import os, pickle
 from string import ascii_lowercase as alpha_str
 

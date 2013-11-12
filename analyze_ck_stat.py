@@ -1,4 +1,7 @@
-
+'''
+    This script is used to analyze the property of checkin
+    -- when is the earliest and latest checkin
+'''
 import snap
 import os, pickle
 import numpy as np
