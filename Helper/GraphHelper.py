@@ -1,6 +1,6 @@
 import snap
 import random
-
+import os
 	
 def gen_degree_hist( graph ):
 	deg_cnt_v = snap.TIntPrV()

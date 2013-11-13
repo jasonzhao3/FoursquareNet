@@ -14,8 +14,8 @@ import pylab as plt
 '''
 data_path = '../DataSet/'
 result_path = '../DataSet/Analysis/'
-graph_in = snap.TFIn(os.path.join(data_path, 'sf_trsn_graph'))
-trsn_g = snap.TNEANet.Load(graph_in)
+filename = 'sf_trsn_graph'
+trsn_g = GH.LoadGraph(data_path, filename)
 
 
 '''Analysis 1: graph structure
