@@ -19,12 +19,6 @@ json_filename = 'venues-CA-new.json'
 result_path = '../DataSet/Analysis/'
 result_filename = 'sf_graph_with_attr'
 
-# load graph first 
-def LoadGraph(data_path, filename):
-	graph_in = snap.TFIn(os.path.join(data_path, filename))
-	trsn_g = snap.TNEANet.Load(graph_in)
-	return trsn_g
-
 def GetFullVenueDict(json_data_path, filename):
   src_file = os.path.join(json_data_path, filename)
   fin = open(src_file, 'r')
@@ -51,6 +45,6 @@ def AddNodeAttr(graph, full_venue_dict):
       graph.AddStrAttrDatN(NI.GetId(), full_venue_dict[vid]['parentcategory'], 'pcategory') 
   return None
 
-trsn_g = LoadGraph(data_path, graph_filename)
+trsn_g = GH.LoadGraph(data_path, graph_filename)
 full_venue_dict = GetFullVenueDict(json_data_path, json_filename)
 AddNodeAttr(trsn_g, full_venue_dict)
