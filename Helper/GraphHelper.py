@@ -9,9 +9,14 @@ def gen_degree_hist( graph ):
 
 
 # load graph 
-def LoadGraph(data_path, filename):
+def load_graph(data_path, filename):
 	graph_in = snap.TFIn(os.path.join(data_path, filename))
 	graph_out = snap.TNEANet.Load(graph_in)
 	return graph_out
 
+def save_graph(graph, data_path, filename):
+    out_file = os.path.join(data_path, filename)
+    graph_out = snap.TFOut(out_file)
+    graph.Save(graph_out)
+    graph_out.Flush()
 

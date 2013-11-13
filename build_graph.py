@@ -53,6 +53,7 @@ def update_edge_attrs(graph, src_nid, dst_nid, time_range):
 
 
 data_path = '../DataSet/'
+graph_path = '../DataSet/GraphData/'
 trsn_file = open(os.path.join(data_path, 'sf_trsn'))
 time_file = open(os.path.join(data_path, 'sf_time'))
 trsn_list = pickle.load(trsn_file)
@@ -97,9 +98,6 @@ for idx, trsn in enumerate(trsn_list):
     print idx, trsn
     print len(trsn_list)    
 
-trsn_graph = os.path.join(data_path, 'sf_trsn_graph')
-graph_out = snap.TFOut(trsn_graph)
-trsn_g.Save(graph_out)
-graph_out.Flush()
+GH.save_graph(trsn_g, graph_path, 'sf_trsn_graph')
 print "succesfully build the graph!"
 
