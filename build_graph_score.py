@@ -48,7 +48,6 @@ def AddNodeAttr(graph, full_venue_dict):
   #return None
 
 #TODO: make addnodeattr as a function in the GraphHelper
-
 trsn_g = GH.load_graph(graph_data_path, graph_filename)
 full_venue_dict = VH.GetFullVenueDict(venue_graph_data_path, venue_filename)
 category_dict = VH.load_json(venue_graph_data_path, 'category_map.json')
