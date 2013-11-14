@@ -46,6 +46,7 @@ def print_nids(graph):
 
 '''
     Snapshot related functions
+    Headache: Bug in DelNode()
 '''
 # delete node based on its checkin starting timestamp
 def filter_node_sts(graph, ts):
