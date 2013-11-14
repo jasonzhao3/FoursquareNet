@@ -5,6 +5,7 @@ import snap
 import os, pickle
 import numpy as np
 import Helper.GraphHelper as GH
+import Helper.AnalysisHelper as AH
 import collections as cl
 import pylab as plt
 
@@ -26,12 +27,16 @@ result_path = '../CS224W_Dataset/Analysis/'
 
 graph = GH.load_graph(data_path, 'sf_venue_graph')
 occurrences = cl.Counter()
+dataset = []
 
 for node in graph.Nodes():
 	ckn = graph.GetIntAttrDatN(node.GetId(), 'ckn')
 	occurrences[ckn] += 1
+	dataset.append(ckn)
 
 x, y = counter_to_arrays(occurrences)
+alpha = AH.get_mle_alpha(dataset, min(dataset))
+print "check-in distribution: the estimated alpha is", alpha
 
 plt.figure()
 plt.xscale('log')
@@ -43,11 +48,15 @@ plt.xlabel('total check-ins')
 plt.savefig(os.path.join(result_path, 'ck_freq_dist.png'))
 
 occurrences = cl.Counter()
+dataset = []
 for edge in graph.Edges():
 	trsn_cnt = graph.GetIntAttrDatE(edge.GetId(), 'trsn_cnt')
 	occurrences[trsn_cnt] += 1
+	dataset.append(trsn_cnt)
 
 x, y = counter_to_arrays(occurrences)
+alpha = AH.get_mle_alpha(dataset, min(dataset))
+print "transition counts distribution: the estimated alpha is", alpha
 
 plt.figure()
 plt.xscale('log')
