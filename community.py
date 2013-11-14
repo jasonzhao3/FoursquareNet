@@ -1,7 +1,6 @@
-import snap
-import os
-import json
+import snap, os, json, csv
 import Helper.GraphHelper as GH
+import Helper.VenueHelper as VH
 
 def to_PUNGraph(g):
 	un_g = snap.TUNGraph.New()
@@ -18,40 +17,33 @@ def to_PUNGraph(g):
 	print "node: %d edge: %d" % (node_count, edge_count)
 	return un_g
 
-def load_json(src_file):
-    json_file = open(src_file)
-    json_dict = json.load(json_file)
-    json_file.close()
-    return json_dict
-
-def to_hash(venue_list):
-	venue_hash = dict()
-	for item in venue_list:
-		venue_hash[item['id']] = [item['category'], item['venuename'], item['lat'], item['lng']]
-	return venue_hash
-
 data_path = '../CS224W_Dataset/GraphData'
 filename = 'sf_trsn_graph_small'
 trsn_g = GH.load_graph(data_path, filename)
 un_trsn_g = to_PUNGraph(trsn_g)
 
 # try to use the SNAP library function to get the community structure
-# communities = snap.TCnComV()
-# modularity = snap.CommunityCNM(un_trsn_g, communities)
-# print "Community detection complete, modularity score is", modularity
-# for community in communities:
-# 	print [node for node in community]
-communities = [[46, 2377, 3016], [260, 1442, 1988, 4536], [684, 974, 3056, 6266]]
+communities = snap.TCnComV()
+modularity = snap.CommunityCNM(un_trsn_g, communities)
+print "Community detection complete, modularity score is", modularity
+# communities = [[3280, 2414, 2662, 2878, 3551], [848, 1106, 1474, 1915, 2089, 3139, 3400, 5759, 6280, 7848]]
 
 # fetch venue info and produce a csv for visualization
 data_path = '../CS224W_Dataset'
-src_file = os.path.join(data_path, 'venues-CA-new.json')
-venue_list = load_json(src_file)
-# transform the venue list to a hash
-venue_hash = to_hash(venue_list)
+out_csv = '../CS224W_Dataset/Community/transition-SF-community.csv'
+venue_hash = VH.GetFullVenueDict(data_path, 'venues-CA-new.json')
 
-for i in range(len(communities)):
-	for nodeID in communities[i]:
-		vid = trsn_g.GetStrAttrDatN(nodeID, 'vid')
-		print venue_hash[vid][1]
+with open(out_csv, 'w') as fout:
+	a = csv.writer(fout, delimiter=',', quoting=csv.QUOTE_ALL)
+	a.writerow(['venuename', 'community', 'category', 'parentcategory', 'lat', 'lng'])
+	for i in range(communities.Len()):
+		for nodeID in communities[i]:
+			vid = trsn_g.GetStrAttrDatN(nodeID, 'vid')
+			if(vid in venue_hash):
+				venue_data = venue_hash[vid]
+				data_to_write = [venue_data['venuename'], str(i), venue_data['category'], venue_data['parentcategory'], venue_data['lat'], venue_data['lng']]
+				a.writerow([d.encode('utf8') for d in data_to_write])
+
+
+
 
