@@ -2,11 +2,6 @@ import snap
 import random
 import os
 	
-def gen_degree_hist( graph ):
-	deg_cnt_v = snap.TIntPrV()
-	snap.GetDegCnt( graph, deg_cnt_v )
-	return deg_cnt_v
-
 
 '''
     Save and Load Graph

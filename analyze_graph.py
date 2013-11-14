@@ -6,31 +6,32 @@ import snap
 import os
 import numpy as np
 import Helper.GraphHelper as GH
+import Helper.AnalysisHelper as AH
 import pylab as plt
 
 ''' Import Graph: graph is stored in binary form to save space, available in dropbox folder
-    sf_trsn_graph_small: A small test graph with only a few venues in sf -- you can use this to test your script first
-    sf_trsn_graph: up-to-date venue graph of sf
+    sf_venue_graph_small: A small test graph with only a few venues in sf -- you can use this to test your script first
+    sf_venue_graph: up-to-date venue graph of sf
 '''
-data_path = '../DataSet/'
+data_path = '../DataSet/GraphData/'
 result_path = '../DataSet/Analysis/'
-filename = 'sf_trsn_graph'
-trsn_g = GH.load_graph(data_path, filename)
+filename = 'sf_venue_graph'
+venue_g = GH.load_graph(data_path, filename)
 
 
 '''Analysis 1: graph structure
    - graph size
    - SCC, bowtie structure
 '''
-g_size = trsn_g.GetNodes()
-edge_size = trsn_g.GetEdges()
-max_scc = snap.GetMxScc(trsn_g)
+g_size = venue_g.GetNodes()
+edge_size = venue_g.GetEdges()
+max_scc = snap.GetMxScc(venue_g)
 num_max_scc_n = max_scc.GetNodes()
 rand_node = max_scc.GetRndNId()
-out_combined = snap.GetBfsTree( trsn_g, rand_node, True, False )
-in_combined = snap.GetBfsTree( trsn_g, rand_node, False, True )
+out_combined = snap.GetBfsTree( venue_g, rand_node, True, False )
+in_combined = snap.GetBfsTree( venue_g, rand_node, False, True )
 
-max_wcc = snap.GetMxWcc( trsn_g )
+max_wcc = snap.GetMxWcc( venue_g )
 num_max_wcc_n = max_wcc.GetNodes()
 
 num_out = out_combined.GetNodes() - num_max_scc_n
@@ -46,7 +47,7 @@ print "The disconnected components has the percentage: %0.4f"  % (float(numDisco
 ''' Analysis 2: graph structure
     - node distribution
 '''
-deg_cnt_v = GH.gen_degree_hist(trsn_g)
+deg_cnt_v = AH.gen_degree_hist(venue_g)
 deg_v, deg_prob = zip(*[[item.GetVal1(), float(item.GetVal2()) / g_size] for item in deg_cnt_v])
 
 plt.figure()
@@ -64,14 +65,14 @@ plt.savefig(os.path.join(result_path, 'node_dist.png'))
 '''
 trsn_freqs = []
 trsn_durations = []
-for edge in trsn_g.Edges():
+for edge in venue_g.Edges():
     src_nid = edge.GetSrcNId()
     dst_nid = edge.GetDstNId()
-    edge_id = trsn_g.GetEId(src_nid, dst_nid)
-    freq = trsn_g.GetIntAttrDatE(edge_id, 'freq')
+    edge_id = venue_g.GetEId(src_nid, dst_nid)
+    freq = venue_g.GetIntAttrDatE(edge_id, 'trsn_cnt')
     if freq > 20:
         trsn_freqs.append(freq)
-    trsn_durations.append(trsn_g.GetFltAttrDatE(edge_id, 'duration'))
+    trsn_durations.append(venue_g.GetFltAttrDatE(edge_id, 'duration'))
 print max(trsn_freqs), len(trsn_freqs)
 trsn_freqs = np.log(np.array(trsn_freqs)+10)
 trsn_durations = np.array(trsn_durations) / 60.0
