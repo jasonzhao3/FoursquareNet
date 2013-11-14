@@ -6,6 +6,7 @@
 
 import snap
 import os, pickle
+import Helper.GraphHelper as GH
 
 def add_time_stamp(graph, nid, time_stamp):
     #the type bug was weird, has trapped me for a while

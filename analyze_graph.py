@@ -15,7 +15,7 @@ import pylab as plt
 data_path = '../DataSet/'
 result_path = '../DataSet/Analysis/'
 filename = 'sf_trsn_graph'
-trsn_g = GH.LoadGraph(data_path, filename)
+trsn_g = GH.load_graph(data_path, filename)
 
 
 '''Analysis 1: graph structure
