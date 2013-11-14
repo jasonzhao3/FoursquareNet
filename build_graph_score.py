@@ -43,7 +43,8 @@ def AddNodeAttr(graph, full_venue_dict):
       graph.AddFltAttrDatN(NI.GetId(), float(full_venue_dict[vid]['lng']), 'lng') 
       graph.AddStrAttrDatN(NI.GetId(), full_venue_dict[vid]['category'], 'category') 
       graph.AddStrAttrDatN(NI.GetId(), full_venue_dict[vid]['parentcategory'], 'pcategory') 
-  return None
+  #GH.save_graph(graph, result_path, result_filename)
+  #return None
 
 trsn_g = GH.load_graph(data_path, graph_filename)
 full_venue_dict = GetFullVenueDict(json_data_path, json_filename)
