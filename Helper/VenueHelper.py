@@ -1,5 +1,6 @@
 import json
 import os
+import snap
 
 def GetFullVenueDict(json_data_path, filename):
     src_file = os.path.join(json_data_path, filename)
@@ -39,6 +40,20 @@ def dump_json(data_path, filename, json_dict):
     output_file = os.path.join(data_path, filename)
     with open( output_file, 'w') as outfile:
         json.dump(json_dict, outfile, indent=4, separators=(',', ': '))
+
+def get_category_list(data_path, filename):
+    cate_dict = load_json(data_path, filename)
+    key_vals = cate_dict.items()
+    key_vals.sort(key=lambda t:t[1])
+    return [item[0] for item in key_vals]
+
+def get_category(graph, category_list, nid):
+    idx = graph.GetIntAttrDatN(nid, 'category') 
+    return category_list[idx]
+
+def get_pcategory(graph, pcategory_list, nid):
+    idx = graph.GetIntAttrDatN(nid, 'pcategory')
+    return pcategory_list[idx]
 
 # this file is amied to be called separately 
 def save_category_map():
