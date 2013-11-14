@@ -1,6 +1,7 @@
 import json
 import os
 import snap
+import pickle
 
 def GetFullVenueDict(json_data_path, filename):
     src_file = os.path.join(json_data_path, filename)
@@ -11,6 +12,13 @@ def GetFullVenueDict(json_data_path, filename):
         venue_dict[data['id']] = data
     fin.close()
     return venue_dict
+
+def load_pickle_file(data_path, filename):
+    input_file = os.path.join(data_path, filename)
+    fin = open(input_file)
+    output_list = pickle.load(fin)
+    fin.close()
+    return output_list
 
 
 def build_category_dict(full_venue_dict):
@@ -31,8 +39,9 @@ def build_category_dict(full_venue_dict):
 
 def load_json(data_path, filename):
     json_file = os.path.join(data_path, filename)
-    json_data = open( json_file )
-    json_dict = json.load( json_data )
+    fin = open( json_file )
+    json_dict = json.load(fin)
+    fin.close()
     return json_dict
 
 

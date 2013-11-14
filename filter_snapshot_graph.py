@@ -16,16 +16,16 @@ pcategory_name = 'pcategory_map.json'
 '''
     Currently, the graph has node attribute:
     - vid
-    - ckf
-    - sts
-    - ets
+    - ckn (insofar, checkin number)
+    - sts (start timestamp)
+    - ets (end timestamp)
     - lat
     - lng
     - category
     - pcategor
     
     And edge attribute:
-    - freq
+    - trsn_cnt
     - duration
 '''
 venue_g = GH.load_graph(graph_path, graph_name)

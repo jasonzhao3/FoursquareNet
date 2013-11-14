@@ -29,11 +29,34 @@ def save_graph(graph, data_path, filename):
     Node and Edge attribute related functions
     ------------------------------------------
 '''
+# nid: node id in graph
+# vid: venue id in network
+def add_node(graph, nid, vid, time_stamp):
+    # a new node
+    if not graph.IsNode(nid):
+        graph.AddNode(nid)
+        graph.AddStrAttrDatN(nid, vid, 'vid')
+        add_time_stamp(graph, nid, time_stamp)
+        add_ckn(graph, nid)
+    # existed node, update info
+    else:
+        update_ckn(graph, nid)
+        update_time_stamp(graph, nid, time_stamp)
+
+def add_edge(graph, src_nid, dst_nid, time_range):
+    if not graph.IsEdge(src_nid, dst_nid):
+        add_edge_attrs(graph, src_nid, dst_nid, time_range)
+    else:
+        update_edge_attrs(graph, src_nid, dst_nid, time_range)
+        
+
 def add_time_stamp(graph, nid, time_stamp):
     #the type bug was weird, has trapped me for a while
     graph.AddIntAttrDatN(nid, int(time_stamp), 'sts')
     graph.AddIntAttrDatN(nid, int(time_stamp), 'ets')
 
+def add_ckn(graph, nid):
+    graph.AddIntAttrDatN(nid, 1, 'ckn')
 
 def update_time_stamp(graph, nid, time_stamp):
     time_stamp = int(time_stamp)
@@ -44,31 +67,32 @@ def update_time_stamp(graph, nid, time_stamp):
     elif time_stamp > old_ets:
         graph.AddIntAttrDatN(nid, time_stamp, 'ets')
 
-def update_ckf(graph, nid):
-    ckf = graph.GetIntAttrDatN(nid, 'ckf')
-    graph.AddIntAttrDatN(nid, ckf+1, 'ckf')
+def update_ckn(graph, nid):
+    ckn = graph.GetIntAttrDatN(nid, 'ckn')
+    graph.AddIntAttrDatN(nid, ckn+1, 'ckn')
 
+# deprecate
 def add_node_attrs(graph, src_nid, dst_nid, time_range):
-    graph.AddIntAttrDatN(src_nid, 1, 'ckf')
-    graph.AddIntAttrDatN(dst_nid, 1, 'ckf')
+    graph.AddIntAttrDatN(src_nid, 1, 'ckn')
+    graph.AddIntAttrDatN(dst_nid, 1, 'ckn')
     add_time_stamp(graph, src_nid, time_range[0])
     add_time_stamp(graph, dst_nid, time_range[1])
 
 def update_node_attrs(graph, src_nid, dst_nid, time_range):
-    update_ckf(graph, src_nid)
-    update_ckf(graph, dst_nid)
+    update_ckn(graph, src_nid)
+    update_ckn(graph, dst_nid)
     update_time_stamp(graph, src_nid, time_range[0])
     update_time_stamp(graph, dst_nid, time_range[1])
 
 def add_edge_attrs(graph, src_nid, dst_nid, time_range):
     edge_id = graph.AddEdge(src_nid, dst_nid)
-    graph.AddIntAttrDatE(edge_id, 1, 'freq')
+    graph.AddIntAttrDatE(edge_id, 1, 'trsn_cnt')
     graph.AddFltAttrDatE(edge_id, int(time_range[1])-int(time_range[0]), 'duration')
 
 def update_edge_attrs(graph, src_nid, dst_nid, time_range):
     edge_id = graph.GetEId(src_nid, dst_nid)
-    freq = graph.GetIntAttrDatE(edge_id, 'freq')
-    trsn_g.AddIntAttrDatE(edge_id, freq+1, 'freq')
+    trsn_cnt = graph.GetIntAttrDatE(edge_id, 'trsn_cnt')
+    graph.AddIntAttrDatE(edge_id, trsn_cnt+1, 'trsn_cnt')
     duration = graph.GetFltAttrDatE(edge_id, 'duration')
     new_duration = (duration + int(time_range[1]) - int(time_range[0])) / 2.0
     graph.AddFltAttrDatE(edge_id, new_duration, 'duration')
