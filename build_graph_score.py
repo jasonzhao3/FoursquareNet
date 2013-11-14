@@ -6,15 +6,16 @@ import snap
 import os
 import numpy as np
 import Helper.GraphHelper as GH
+import Helper.VenueHelper as VH
 import pylab as plt
 import json
 import collections
 
-data_path = '../DataSet/GraphData/'
+graph_data_path = '../DataSet/GraphData/'
 graph_filename = 'sf_trsn_graph'
 
-json_data_path = '../DataSet/'
-json_filename = 'venues-CA-new.json'
+venue_graph_data_path = '../DataSet/VenueData/'
+venue_filename = 'venues-CA-new.json'
 
 result_path = '../DataSet/Analysis/'
 result_filename = 'sf_graph_with_attr'
@@ -46,7 +47,14 @@ def AddNodeAttr(graph, full_venue_dict):
   #GH.save_graph(graph, result_path, result_filename)
   #return None
 
-trsn_g = GH.load_graph(data_path, graph_filename)
-full_venue_dict = GetFullVenueDict(json_data_path, json_filename)
-AddNodeAttr(trsn_g, full_venue_dict)
-GH.save_graph(trsn_g, data_path, 'sf_venue_graph')
+#TODO: make addnodeattr as a function in the GraphHelper
+
+trsn_g = GH.load_graph(graph_data_path, graph_filename)
+full_venue_dict = VH.GetFullVenueDict(venue_graph_data_path, venue_filename)
+category_dict = VH.load_json(venue_graph_data_path, 'category_map.json')
+pcategory_dict = VH.load_json(venue_graph_data_path, 'pcategory_map.json')
+
+GH.add_category(trsn_g, full_venue_dict, category_dict, pcategory_dict)
+GH.save_graph(trsn_g, graph_data_path, 'sf_venue_graph')
+print 'successfully build venue_graph!'
+
