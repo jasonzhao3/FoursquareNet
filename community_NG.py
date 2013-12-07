@@ -76,7 +76,7 @@ def bfs(graph, root_id, path_lens, sigmas, children):
             # otherwise -may be parent, or non-shortest-path node, do nothin
  
 
-def get_btwness(graph, root_id, btwness):
+def get_btwness(graph, root_id, btwness, weight_dict):
     # path_lens: a dictionary to keep record of shortest path length to each node
     # sigmas: a dictionary to keep record of sigmas
     # children: a dictionary to keep all children of a node
@@ -84,7 +84,6 @@ def get_btwness(graph, root_id, btwness):
     sigmas = {}
     children = {}
     # longest path length => not necessarily a leaf node, instead no children means leaf-node 
-    weight_dict = get_weight_dict(graph)
     bfs(graph, root_id, path_lens, sigmas, children)
     s_dep = get_dependency(sigmas, children, root_id, weight_dict)
     update_dependency(s_dep, btwness)
@@ -95,17 +94,16 @@ def update_ap_dependency(s_dep, ap_btwness, kcnt, cn):
             ap_btwness[edge] += val
             kcnt[edge] += 1
 
-def update_est_btwness(ap_btwness, kcnt):
+def update_est_btwness(ap_btwness, kcnt, n):
     for edge, val in ap_btwness.iteritems():
         k = kcnt[edge]
-        ap_btwness[edge] = ap_btwness[edge] * 10
+        ap_btwness[edge] = ap_btwness[edge] * float(n) / k
 
-def get_ap_btwness(graph, sample_limit, cn):
+def get_ap_btwness(graph, sample_limit, cn, n, weight_dict):
     ap_btwness = Counter()
     kcnt = Counter()
     node_set = set()
     cnt = 0
-    weight_dict = get_weight_dict(graph)
     while cnt <= sample_limit:
         nid = graph.GetRndNId()
         path_lens = {}
@@ -117,7 +115,8 @@ def get_ap_btwness(graph, sample_limit, cn):
             bfs(graph, nid, path_lens, sigmas, children)
             s_dep = get_dependency(sigmas, children, nid, weight_dict)
             update_ap_dependency(s_dep, ap_btwness, kcnt, cn)
-    update_est_btwness(ap_btwness, kcnt)
+        print 'finish one more pass, now ', cnt
+    update_est_btwness(ap_btwness, kcnt, n)
     return ap_btwness
 
        
@@ -129,7 +128,6 @@ graph_path = '../DataSet/GraphData/'
 venue_path = '../DataSet/VenueData/'
 result_path = '../DataSet/Analysis/'
 graph_name = 'sf_venue_graph'
-#graph_name = 'sf_venue_center'
 category_name = 'category_map.json'
 pcategory_name = 'pcategory_map.json'
 
@@ -151,24 +149,27 @@ pcategory_name = 'pcategory_map.json'
     - duration
 '''
 g = GH.load_graph(graph_path, graph_name)
+n = g.GetNodes()
 print g.GetNodes(), g.GetEdges()
 
+undirected_g = GH.convert_undirected_graph(g)
+weight_dict = get_weight_dict(g)
 '''
 # algorithm 1
 btwness = Counter()
-for node in g.Nodes():
-    get_btwness(g, node.GetId(), btwness)
+for node in undirected_g.Nodes():
+    get_btwness(undirected_g, node.GetId(), btwness, weight_dict)
 
 btwness_list = btwness.values()
 btwness_list.sort(reverse=True)
 print btwness_list
 print g.GetEdges(), len(btwness_list)
- 
+''' 
 
 # algorithm 2
-sample_limit = 100
-cn = 5000
-ap_btwness = get_ap_btwness(g, sample_limit, cn)
+sample_limit = n / 20
+cn = 3 * n
+ap_btwness = get_ap_btwness(undirected_g, sample_limit, cn, n, weight_dict)
 ap_btwness_list = ap_btwness.values()
 ap_btwness_list.sort(reverse=True)
 
@@ -179,7 +180,7 @@ plt.legend(loc='upper left')
 plt.xlabel('x')
 plt.ylabel('betweeness centrality')
 plt.savefig('Q2.png')
-'''
+
 
     
 
