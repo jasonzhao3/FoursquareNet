@@ -20,13 +20,12 @@ def get_weight_dict(graph):
         dst_nid = edge.GetDstNId()
         edge_id = graph.GetEId(src_nid, dst_nid)
         weight_dict[(src_nid, dst_nid)] += graph.GetIntAttrDatE(edge_id, 'trsn_cnt')
-    print weight_dict
+    print weight_dict, len(weight_dict)
     return weight_dict
  
 # recursion: has both return value and reference updates
 def recur_dependency(deltas, sigmas, children, v, w, weight_dict):
     weight = weight_dict[(v,w)] + weight_dict[(w, v)]
-#    print weight
     gamma = 1.0 / np.sqrt(weight)
     # leaf node
     if not children[w]:
@@ -38,7 +37,6 @@ def recur_dependency(deltas, sigmas, children, v, w, weight_dict):
     for kid in children[w]:
         tmp_delta += recur_dependency(deltas, sigmas, children, w, kid, weight_dict)
     key = make_key(v,w)
-    # TODO: add weight
     deltas[key] = float(sigmas[v]) / sigmas[w] * tmp_delta * gamma
     return deltas[key]
 
@@ -130,8 +128,8 @@ def get_ap_btwness(graph, sample_limit, cn):
 graph_path = '../DataSet/GraphData/'
 venue_path = '../DataSet/VenueData/'
 result_path = '../DataSet/Analysis/'
-#graph_name = 'sf_venue_graph'
-graph_name = 'sf_venue_center'
+graph_name = 'sf_venue_graph'
+#graph_name = 'sf_venue_center'
 category_name = 'category_map.json'
 pcategory_name = 'pcategory_map.json'
 
@@ -153,8 +151,9 @@ pcategory_name = 'pcategory_map.json'
     - duration
 '''
 g = GH.load_graph(graph_path, graph_name)
+print g.GetNodes(), g.GetEdges()
 
-
+'''
 # algorithm 1
 btwness = Counter()
 for node in g.Nodes():
@@ -180,7 +179,7 @@ plt.legend(loc='upper left')
 plt.xlabel('x')
 plt.ylabel('betweeness centrality')
 plt.savefig('Q2.png')
-
+'''
 
     
 

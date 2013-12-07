@@ -7,7 +7,7 @@
 import json
 import os, pickle
 
-data_path = '../DataSet/'
+data_path = '../DataSet/VenueData'
 
 def load_json(src_file):
     json_file = open(src_file)
@@ -37,6 +37,8 @@ def dump_trsn_time(src_file, out_trsn, out_time):
 
 src_file = os.path.join(data_path, 'venues-CA-vis.json')
 venue_list = load_json(src_file)
+print venue_list[0]
+
 region_name = 'San Francisco'
 region_id_list = [item['id'] for item in venue_list if item['city'] == region_name]
 region_id_set = set(region_id_list)

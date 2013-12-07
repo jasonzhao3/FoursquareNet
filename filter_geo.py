@@ -47,7 +47,7 @@ i = 0
 for edge in venue_g.Edges():
     i += 1
     print venue_g.GetIntAttrDatE(edge.GetId(), 'trsn_cnt'), i
-#GH.filter_node_geo(venue_g, center, radius)
+GH.filter_node_geo(venue_g, center, radius)
 print venue_g.GetNodes()
 #GH.save_graph(venue_g, graph_path, 'sf_venue_center')
 
