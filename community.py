@@ -18,7 +18,7 @@ def to_PUNGraph(g):
 	return un_g
 
 data_path = '../CS224W_Dataset/GraphData'
-filename = 'sf_trsn_graph_small'
+filename = 'sf_venue_center'
 trsn_g = GH.load_graph(data_path, filename)
 un_trsn_g = to_PUNGraph(trsn_g)
 
@@ -30,7 +30,7 @@ print "Community detection complete, modularity score is", modularity
 
 # fetch venue info and produce a csv for visualization
 data_path = '../CS224W_Dataset'
-out_csv = '../CS224W_Dataset/Community/transition-SF-community.csv'
+out_csv = '../CS224W_Dataset/transition-SF-community.csv'
 venue_hash = VH.GetFullVenueDict(data_path, 'venues-CA-new.json')
 
 with open(out_csv, 'w') as fout:
