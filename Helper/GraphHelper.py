@@ -149,4 +149,19 @@ def filter_node_sts(graph, ts):
             print sts, ts
             graph.DelNode(nid)
 
+def filter_node_geo(graph, center, radius):
+    c_lat = center[0]
+    c_lng = center[1]
+    i = 0
+    for node in graph.Nodes():
+        nid = node.GetId()
+        lat = graph.GetFltAttrDatN(nid, 'lat')
+        lng = graph.GetFltAttrDatN(nid, 'lng')
+        print lat, lng, 'original'
+        if abs(lat-c_lat) > radius or abs(lng-c_lng) > radius:
+            # still has precision problem
+            print c_lat, "%.16f" %(lat), c_lng, "%.16f" %(lng), 'delete a node!', nid, i
+            i += 1
+            graph.DelNode(nid)
+
 
