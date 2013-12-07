@@ -8,8 +8,8 @@ import Helper.VenueHelper as VH
 graph_path = '../DataSet/GraphData/'
 venue_path = '../DataSet/VenueData/'
 result_path = '../DataSet/Analysis/'
-graph_name = 'sf_venue_graph'
-#graph_name = 'sf_venue_center'
+#graph_name = 'sf_venue_graph'
+graph_name = 'sf_venue_center'
 category_name = 'category_map.json'
 pcategory_name = 'pcategory_map.json'
 
@@ -42,9 +42,14 @@ GH.print_nids(venue_g)
 center = (37.76010, -122.44779)
 radius = 0.095
 print venue_g.GetNodes()
-GH.filter_node_geo(venue_g, center, radius)
+print venue_g.GetEdges()
+i = 0
+for edge in venue_g.Edges():
+    i += 1
+    print venue_g.GetIntAttrDatE(edge.GetId(), 'trsn_cnt'), i
+#GH.filter_node_geo(venue_g, center, radius)
 print venue_g.GetNodes()
-GH.save_graph(venue_g, graph_path, 'sf_venue_center')
+#GH.save_graph(venue_g, graph_path, 'sf_venue_center')
 
 
 

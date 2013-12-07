@@ -21,6 +21,24 @@ def save_graph(graph, data_path, filename):
 
 
 '''
+   Create Corresponding PUNGraph for TNEANet
+'''
+def convert_undirected_graph(tneat_graph):
+    g = snap.TUNGraph.New()
+    for node in tneat_graph.Nodes():
+        g.AddNode(node.GetId())
+
+    for edge in tneat_graph.Edges():
+        g.AddEdge(edge.GetSrcNId(), edge.GetDstNId())
+    return g
+
+    
+
+
+
+
+
+'''
     Node and Edge attribute related functions
     ------------------------------------------
 '''
@@ -107,7 +125,8 @@ def add_category(graph, full_venue_dict, category_dict, pcategory_dict):
             graph.AddIntAttrDatN(NI.GetId(), pcategory_dict[full_venue_dict[vid]['parentcategory']], 'pcategory')
 
 
-
+def get_lat_lng(full_venue_dict, vid):
+    return float(full_venue_dict[vid]['lat']), float(full_venue_dict[vid]['lng'])
 
 '''
     Debug related functions
