@@ -10,7 +10,7 @@
 import os, pickle
 from string import ascii_lowercase as alpha_str
 
-data_path = '../DataSet/'
+data_path = '../DataSet/Transition/'
 trsn_prefix = 'out_trsn_checkin_seg_a'
 time_prefix = 'out_time_checkin_seg_a'
 trsn_list = []

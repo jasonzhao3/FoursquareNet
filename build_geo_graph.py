@@ -42,8 +42,8 @@ full_venue_dict = VH.GetFullVenueDict(venue_path, 'venues-CA-new.json')
 category_dict = VH.load_json(venue_path, 'category_map.json')
 pcategory_dict = VH.load_json(venue_path, 'pcategory_map.json')
 lng_list = [GH.get_lat_lng(full_venue_dict, trsn[1]) for trsn in trsn_list]
-print max(lng_list)
-
+lng_list.sort(key=lambda t:t[1], reverse=True)
+print lng_list[0]
 '''
 vid_map = create_vid_map(trsn_list)
 
