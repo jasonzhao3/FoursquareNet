@@ -22,8 +22,8 @@ def counter_to_arrays(c):
 		frequencies.append(c[n])
 	return [values, frequencies]
 
-data_path = '../CS224W_Dataset/GraphData'
-result_path = '../CS224W_Dataset/Analysis/'
+data_path = '../Dataset/GraphData'
+result_path = '../Dataset/Analysis/'
 
 graph = GH.load_graph(data_path, 'sf_venue_graph')
 occurrences = cl.Counter()
@@ -36,15 +36,18 @@ for node in graph.Nodes():
 
 x, y = counter_to_arrays(occurrences)
 alpha = AH.get_mle_alpha(dataset, min(dataset))
+powerlaw_y = AH.get_powerlaw_y(dataset, alpha, min(dataset), np.sum(y))   
 print "check-in distribution: the estimated alpha is", alpha
 
 plt.figure()
 plt.xscale('log')
 plt.yscale('log')
-plt.scatter(x, y, color='crimson')
+plt.scatter(x, y, color='crimson', label='check-in distribution')
+plt.plot(powerlaw_y, color='blue', label='MLE-PDF alpha: ' + str(alpha)[:4])
 plt.title('check-in distribution of venues')
 plt.ylabel('number of venues')
 plt.xlabel('total check-ins')
+plt.legend()
 plt.savefig(os.path.join(result_path, 'ck_freq_dist.png'))
 
 occurrences = cl.Counter()
@@ -56,14 +59,17 @@ for edge in graph.Edges():
 
 x, y = counter_to_arrays(occurrences)
 alpha = AH.get_mle_alpha(dataset, min(dataset))
+powerlaw_y = AH.get_powerlaw_y(dataset, alpha, min(dataset), np.sum(y))   
 print "transition counts distribution: the estimated alpha is", alpha
 
 plt.figure()
 plt.xscale('log')
 plt.yscale('log')
-plt.scatter(x, y, color='crimson')
+plt.scatter(x, y, color='crimson', label='transition counts distribution')
+#plt.plot(powerlaw_y[3:200], color='blue', label='MLE-PDF alpha: ' + str(alpha)[:4])
 plt.title('transition counts distribution')
 plt.ylabel('number of edges')
 plt.xlabel('transition counts')
+plt.legend()
 plt.savefig(os.path.join(result_path, 'trsn_counts_dist.png'))
 

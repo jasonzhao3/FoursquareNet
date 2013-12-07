@@ -21,6 +21,24 @@ def save_graph(graph, data_path, filename):
 
 
 '''
+   Create Corresponding PUNGraph for TNEANet
+'''
+def convert_undirected_graph(tneat_graph):
+    g = snap.TUNGraph.New()
+    for node in tneat_graph.Nodes():
+        g.AddNode(node.GetId())
+
+    for edge in tneat_graph.Edges():
+        g.AddEdge(edge.GetSrcNId(), edge.GetDstNId())
+    return g
+
+    
+
+
+
+
+
+'''
     Node and Edge attribute related functions
     ------------------------------------------
 '''
@@ -107,7 +125,8 @@ def add_category(graph, full_venue_dict, category_dict, pcategory_dict):
             graph.AddIntAttrDatN(NI.GetId(), pcategory_dict[full_venue_dict[vid]['parentcategory']], 'pcategory')
 
 
-
+def get_lat_lng(full_venue_dict, vid):
+    return float(full_venue_dict[vid]['lat']), float(full_venue_dict[vid]['lng'])
 
 '''
     Debug related functions
@@ -147,6 +166,21 @@ def filter_node_sts(graph, ts):
         #the node appears later than current timestamp
         if sts > ts:
             print sts, ts
+            graph.DelNode(nid)
+
+def filter_node_geo(graph, center, radius):
+    c_lat = center[0]
+    c_lng = center[1]
+    i = 0
+    for node in graph.Nodes():
+        nid = node.GetId()
+        lat = graph.GetFltAttrDatN(nid, 'lat')
+        lng = graph.GetFltAttrDatN(nid, 'lng')
+        print lat, lng, 'original'
+        if abs(lat-c_lat) > radius or abs(lng-c_lng) > radius:
+            # still has precision problem
+            print c_lat, "%.16f" %(lat), c_lng, "%.16f" %(lng), 'delete a node!', nid, i
+            i += 1
             graph.DelNode(nid)
 
 

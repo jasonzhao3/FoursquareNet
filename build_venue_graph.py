@@ -1,6 +1,5 @@
-''' In this cript, we will do a series of analysis,
-    Just follow this template, build your own analysis script,
-    and try to play with the graph :) '''
+''' Deprecated -- can use build_snapshop_graph instead
+'''
 
 import snap
 import os
@@ -18,7 +17,6 @@ venue_graph_data_path = '../DataSet/VenueData/'
 venue_filename = 'venues-CA-new.json'
 
 result_path = '../DataSet/Analysis/'
-result_filename = 'sf_graph_with_attr'
 
 def GetFullVenueDict(json_data_path, filename):
   src_file = os.path.join(json_data_path, filename)
@@ -47,7 +45,6 @@ def AddNodeAttr(graph, full_venue_dict):
   #GH.save_graph(graph, result_path, result_filename)
   #return None
 
-#TODO: make addnodeattr as a function in the GraphHelper
 trsn_g = GH.load_graph(graph_data_path, graph_filename)
 full_venue_dict = VH.GetFullVenueDict(venue_graph_data_path, venue_filename)
 category_dict = VH.load_json(venue_graph_data_path, 'category_map.json')
