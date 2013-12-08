@@ -25,12 +25,12 @@ def within_ts_range(sts, curr_ts):
         return False
 
 
-data_path = '../DataSet/'
+data_path = '../DataSet/Transition/'
 graph_path = '../DataSet/GraphData/'
 venue_path = '../DataSet/VenueData/'
 
-trsn_list = VH.load_pickle_file(data_path, 'sf_trsn')
-time_list = VH.load_pickle_file(data_path, 'sf_time')
+trsn_list = VH.load_pickle_file(data_path, 'sf_trsn_small_new')
+time_list = VH.load_pickle_file(data_path, 'sf_time_small_new')
 full_venue_dict = VH.GetFullVenueDict(venue_path, 'venues-CA-new.json')
 category_dict = VH.load_json(venue_path, 'category_map.json')
 pcategory_dict = VH.load_json(venue_path, 'pcategory_map.json')
@@ -51,7 +51,7 @@ for ts_idx, ts in enumerate(ts_list):
             GH.add_edge(venue_g, src_nid, dst_nid, time_list[trsn_idx])
     GH.add_category(venue_g, full_venue_dict, category_dict, pcategory_dict)
     print venue_g.GetNodes()
-    GH.save_graph(venue_g, graph_path, 'sf_venue_'+ str(ts))
+    GH.save_graph(venue_g, graph_path, 'sf_venue_small_'+ str(ts))
             
 
 

@@ -16,7 +16,7 @@ time_prefix = 'out_time_checkin_seg_a'
 trsn_list = []
 time_list = []
 for c in alpha_str:
-    if c == 'q':
+    if c == 'c':
         break
     file_name = os.path.join(data_path, trsn_prefix + c)
     infile = open(file_name, 'r')
@@ -27,9 +27,9 @@ for c in alpha_str:
     infile = open(file_name, 'r')
     time_list.extend(pickle.load(infile))
     infile.close()
-
-out_trsn = os.path.join(data_path, 'sf_trsn')
-out_time = os.path.join(data_path, 'sf_time')
+# small_new only contains checkin in a b two files
+out_trsn = os.path.join(data_path, 'sf_trsn_small_new')
+out_time = os.path.join(data_path, 'sf_time_small_new')
 
 out_trsn = open(out_trsn, 'wb')
 out_time = open(out_time, 'wb')

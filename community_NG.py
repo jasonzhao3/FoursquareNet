@@ -6,6 +6,7 @@ import numpy as np
 import Helper.GraphHelper as GH
 import Helper.TimeHelper as TH
 import Helper.VenueHelper as VH
+import pickle, os
 
 def make_key(v, w):
     if v < w:
@@ -13,19 +14,28 @@ def make_key(v, w):
     else:
         return (w,v)
 
-def get_weight_dict(graph):
-    weight_dict = Counter()  
+def get_edge_weight(graph):
+    edge_weight = Counter()  
     for edge in graph.Edges():
         src_nid = edge.GetSrcNId()
         dst_nid = edge.GetDstNId()
         edge_id = graph.GetEId(src_nid, dst_nid)
-        weight_dict[(src_nid, dst_nid)] += graph.GetIntAttrDatE(edge_id, 'trsn_cnt')
-    print weight_dict, len(weight_dict)
-    return weight_dict
- 
+        edge_weight[(src_nid, dst_nid)] += graph.GetIntAttrDatE(edge_id, 'trsn_cnt')
+    print edge_weight, len(edge_weight)
+    return edge_weight
+
+# node weight used for modularity calculation
+def get_node_weight(graph):
+    node_weight = Counter()
+    for node in graph.Nodes():
+        nid = node.GetId()
+        node_weight[nid] += graph.GetIntAttrDatN(nid, 'ckn')
+    print node_weight, len(node_weight)
+    return node_weight
+
 # recursion: has both return value and reference updates
-def recur_dependency(deltas, sigmas, children, v, w, weight_dict):
-    weight = weight_dict[(v,w)] + weight_dict[(w, v)]
+def recur_dependency(deltas, sigmas, children, v, w, edge_weight):
+    weight = edge_weight[(v,w)] + edge_weight[(w, v)]
     gamma = 1.0 / np.sqrt(weight)
     # leaf node
     if not children[w]:
@@ -35,20 +45,16 @@ def recur_dependency(deltas, sigmas, children, v, w, weight_dict):
     # normal recursion
     tmp_delta = 1.0
     for kid in children[w]:
-        tmp_delta += recur_dependency(deltas, sigmas, children, w, kid, weight_dict)
+        tmp_delta += recur_dependency(deltas, sigmas, children, w, kid, edge_weight)
     key = make_key(v,w)
     deltas[key] = float(sigmas[v]) / sigmas[w] * tmp_delta * gamma
     return deltas[key]
 
-def get_dependency(sigmas, children, root_id, weight_dict):
+def get_dependency(sigmas, children, root_id, edge_weight):
     deltas = {}
     for kid in children[root_id]:
-        recur_dependency(deltas, sigmas, children, root_id, kid, weight_dict)
+        recur_dependency(deltas, sigmas, children, root_id, kid, edge_weight)
     return deltas
-
-def update_dependency(s_dep, dependency):
-    for edge, val in s_dep.iteritems():
-        dependency[edge] += val
 
 def bfs(graph, root_id, path_lens, sigmas, children):
     path_lens[root_id] = 0
@@ -75,19 +81,6 @@ def bfs(graph, root_id, path_lens, sigmas, children):
                 children[curr_nid].append(dst_nid)
             # otherwise -may be parent, or non-shortest-path node, do nothin
  
-
-def get_btwness(graph, root_id, btwness, weight_dict):
-    # path_lens: a dictionary to keep record of shortest path length to each node
-    # sigmas: a dictionary to keep record of sigmas
-    # children: a dictionary to keep all children of a node
-    path_lens = {}
-    sigmas = {}
-    children = {}
-    # longest path length => not necessarily a leaf node, instead no children means leaf-node 
-    bfs(graph, root_id, path_lens, sigmas, children)
-    s_dep = get_dependency(sigmas, children, root_id, weight_dict)
-    update_dependency(s_dep, btwness)
-
 def update_ap_dependency(s_dep, ap_btwness, kcnt, cn):
     for edge, val in s_dep.iteritems():
         if ap_btwness[edge] <= cn:
@@ -99,7 +92,7 @@ def update_est_btwness(ap_btwness, kcnt, n):
         k = kcnt[edge]
         ap_btwness[edge] = ap_btwness[edge] * float(n) / k
 
-def get_ap_btwness(graph, sample_limit, cn, n, weight_dict):
+def get_ap_btwness(graph, sample_limit, cn, n, edge_weight):
     ap_btwness = Counter()
     kcnt = Counter()
     node_set = set()
@@ -113,21 +106,71 @@ def get_ap_btwness(graph, sample_limit, cn, n, weight_dict):
             cnt += 1
             node_set.add(nid)
             bfs(graph, nid, path_lens, sigmas, children)
-            s_dep = get_dependency(sigmas, children, nid, weight_dict)
+            s_dep = get_dependency(sigmas, children, nid, edge_weight)
             update_ap_dependency(s_dep, ap_btwness, kcnt, cn)
         print 'finish one more pass, now ', cnt
     update_est_btwness(ap_btwness, kcnt, n)
     return ap_btwness
 
-       
- 
+def get_edge_to_remove(graph, edge_weight):
+    # algorithm 2
+    sample_limit = n / 500
+    cn = 3 * n
+    ap_btwness = get_ap_btwness(graph, sample_limit, cn, n, edge_weight)
+    edge_list = ap_btwness.keys()
+    ap_btwness_list = ap_btwness.values()
+    comb_list = zip(edge_list, ap_btwness_list)
+    comb_list.sort(key=lambda t:t[1], reverse=True)
+    # return edge with largest btwness
+    return comb_list[0][0]
+
+def get_m(node_weight):
+    return float(sum(node_weight.values()))
+
+def get_s(n, communities):
+    s = [-1]*n
+    label = 0
+    for cmty in communities:
+        for nid in cmty:
+            s[nid] = label
+        label += 1
+    return s
+
+def get_B(graph, node_weight, m):
+    B = []
+    # node iteration is ordered
+    for ni in graph.Nodes():
+        row = []
+        ni_id = ni.GetId()
+        for nj in graph.Nodes():
+            nj_id = nj.GetId()
+            si = node_weight[ni_id]
+            sj = node_weight[nj_id]
+            if graph.IsEdge(ni_id, nj_id):
+               row.append(1.0 - si * sj / (2*m))
+            else:
+                row.append(0.0 - si *sj / (2*m))
+        B.append(row)
+        print "append one more row into B!"
+    return B
+
+def save_list(label_list, data_path, filename):
+    out_file = os.path.join(data_path, filename)
+    out_file = open(out_file, 'wb')
+    pickle.dump(label_list, out_file)
+    out_file.close()            
+    
+def get_modularity(communities, n, m, B):
+    s = get_s(n, communities)
+    return 1.0 / (4*m) * np.dot(s, np.dot(s, B)), s
 
 # file configuration
 # TODO: create a configuration module
 graph_path = '../DataSet/GraphData/'
 venue_path = '../DataSet/VenueData/'
+community_path = '../DataSet/Community/'
 result_path = '../DataSet/Analysis/'
-graph_name = 'sf_venue_graph'
+graph_name = 'sf_venue_small'
 category_name = 'category_map.json'
 pcategory_name = 'pcategory_map.json'
 
@@ -152,35 +195,28 @@ g = GH.load_graph(graph_path, graph_name)
 n = g.GetNodes()
 print g.GetNodes(), g.GetEdges()
 
+edge_weight = get_edge_weight(g)
+node_weight = get_node_weight(g)
+
 undirected_g = GH.convert_undirected_graph(g)
-weight_dict = get_weight_dict(g)
-'''
-# algorithm 1
-btwness = Counter()
-for node in undirected_g.Nodes():
-    get_btwness(undirected_g, node.GetId(), btwness, weight_dict)
+m = get_m(node_weight)
+B = get_B(undirected_g, node_weight, m)
+save_list(B, community_path, 'B_matrix')
 
-btwness_list = btwness.values()
-btwness_list.sort(reverse=True)
-print btwness_list
-print g.GetEdges(), len(btwness_list)
-''' 
+num_community = 0
 
-# algorithm 2
-sample_limit = n / 20
-cn = 3 * n
-ap_btwness = get_ap_btwness(undirected_g, sample_limit, cn, n, weight_dict)
-ap_btwness_list = ap_btwness.values()
-ap_btwness_list.sort(reverse=True)
-
-plt.figure()
-plt.semilogy(btwness_list, '--', color='red', label='algorithm1')
-plt.semilogy(ap_btwness_list, '-', color='blue', label='algorithm2')
-plt.legend(loc='upper left')
-plt.xlabel('x')
-plt.ylabel('betweeness centrality')
-plt.savefig('Q2.png')
-
-
+mod_list = []
+while num_community < 10:
+    edge = get_edge_to_remove(undirected_g, edge_weight)
+    undirected_g.DelEdge(edge[0], edge[1])
+    communities = snap.TCnComV()
+    snap.GetWccs(undirected_g, communities)
+    if num_community != communities.Len():
+        num_community = communities.Len()
+        modularity, s = get_modularity(communities, n, m, B)
+        save_list(s, community_path, 'community_' + str(num_community))
+        print modularity
+        mod_list.append(modularity)
+    print num_community
+print mod_list
     
-
